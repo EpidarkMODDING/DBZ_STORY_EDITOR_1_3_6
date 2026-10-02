@@ -1,0 +1,31 @@
+name: Build EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      # El icono sale del propio script (embebido), no hay que subir ningun .ico al repo
+      - name: Generar icono desde el script
+        run: python DBZ_STORY_EDITOR_1_3_6.py --export-icon BT3_no_green.ico
+
+      - name: Compilar
+        run: pyinstaller --noconsole --onefile --icon BT3_no_green.ico --name "Sparking Story Builder" DBZ_STORY_EDITOR_1_3_6.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sparking-Story-Builder
+          path: dist/*.exe
